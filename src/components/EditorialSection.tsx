@@ -128,13 +128,34 @@ export default function EditorialSection() {
       onScroll();
     };
 
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onResize);
     if (document.fonts && document.fonts.ready) {
       document.fonts.ready.then(onResize);
     }
-    measureEd();
-    onScroll();
+
+    if (reduceMotion.matches) {
+      style.setProperty("--edP", "1");
+      lines.forEach((l) => (l.style.transform = "none"));
+      if (note) {
+        note.style.transform = "none";
+        note.style.opacity = "1";
+      }
+      if (skillsTitle) {
+        skillsTitle.style.transform = "none";
+        skillsTitle.style.opacity = "1";
+      }
+      if (reelIn) reelIn.style.transform = "none";
+      items.forEach((el) => {
+        el.style.transform = "none";
+        el.style.opacity = "1";
+      });
+    } else {
+      measureEd();
+      onScroll();
+    }
 
     return () => {
       window.removeEventListener("scroll", onScroll);
