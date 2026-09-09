@@ -468,7 +468,7 @@ export default function CreativeSection({ onOpenWorks }: CreativeSectionProps) {
       ref={pinRef}
       className="s2-pin"
       id="work"
-      aria-label="Where code meets creative thinking"
+      aria-label="Where design meets creative thinking"
     >
       <div ref={stageRef} className="s2-stage">
         <div ref={compRef} className="s2-comp">
@@ -486,7 +486,7 @@ export default function CreativeSection({ onOpenWorks }: CreativeSectionProps) {
               </strong>
             </p>
             <p>
-              <span>Code into</span>{" "}
+              <span>Design into</span>{" "}
               <strong>
                 <em data-slot="s2-side-l2">
                   {heroContent.section2.sideLeft[1]}
@@ -518,7 +518,7 @@ export default function CreativeSection({ onOpenWorks }: CreativeSectionProps) {
             </span>
             <span className="s2-mask s2-mask-2">
               <span className="s2-line s2-line-2">
-                <span className="s2-code">Code</span>
+                <span className="s2-code">Design</span>
                 <span className="s2-meets">Meets</span>
               </span>
             </span>
@@ -552,11 +552,12 @@ export default function CreativeSection({ onOpenWorks }: CreativeSectionProps) {
         <div className="s2-rail s2-rail--left s2-meta" aria-hidden="true">
           <span className="s2-rail-dot"></span>
           <ul className="s2-rail-list">
-            <li>Idea</li>
-            <li>Design</li>
-            <li>Develop</li>
-            <li>Deploy</li>
-            <li>Impact</li>
+            <li>Research</li>
+            <li>Define</li>
+            <li>Ideate</li>
+            <li>Wireframe</li>
+            <li>UI &amp; Prototype</li>
+            <li>Test</li>
           </ul>
           <span className="s2-rail-line s2-rail-line--a"></span>
           <span className="s2-rail-line s2-rail-line--b"></span>
@@ -565,11 +566,12 @@ export default function CreativeSection({ onOpenWorks }: CreativeSectionProps) {
         <div className="s2-rail s2-rail--right s2-meta" aria-hidden="true">
           <span className="s2-rail-dot"></span>
           <ul className="s2-rail-list">
-            <li>Idea</li>
-            <li>Design</li>
-            <li>Develop</li>
-            <li>Deploy</li>
-            <li>Impact</li>
+            <li>Research</li>
+            <li>Define</li>
+            <li>Ideate</li>
+            <li>Wireframe</li>
+            <li>UI &amp; Prototype</li>
+            <li>Test</li>
           </ul>
           <span className="s2-rail-line s2-rail-line--a"></span>
           <span className="s2-rail-line s2-rail-line--b"></span>
