@@ -333,7 +333,7 @@ export const heroContent: PortfolioContent = {
       who: {
         eyebrow: "01 — Who I Am",
         head: "Muthukumar G",
-        text: "UI/UX Designer with 2+ years of experience designing user-centered websites, mobile applications, dashboards, and enterprise products in Coimbatore, India.",
+        text: "UI/UX Designer with 2+ years of experience crafting user-centered websites, mobile applications, dashboards, and enterprise products. Skilled in user research, wireframing, prototyping, interaction design, and design systems, with a strong focus on creating intuitive and scalable digital experiences.\n\nProficient in Figma, Adobe Creative Suite, and Blender, with experience collaborating across teams to solve complex problems, translate ideas into meaningful experiences, and continuously improve products through thoughtful design.",
       },
       what: {
         eyebrow: "02 — What I Do",

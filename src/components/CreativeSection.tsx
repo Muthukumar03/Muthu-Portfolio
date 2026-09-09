@@ -734,7 +734,7 @@ export default function CreativeSection({ onOpenWorks }: CreativeSectionProps) {
 
             <div className="ab-foot">
               <span>( 03 &middot; About )</span>
-              <span>Web &middot; App &middot; Code</span>
+              <span>Website &middot; Mobile App &middot; Dashboard</span>
             </div>
           </div>
 
@@ -766,13 +766,13 @@ export default function CreativeSection({ onOpenWorks }: CreativeSectionProps) {
                 <h3 className="ab-head" data-slot="ab-who-head">
                   {heroContent.about.views.who.head}
                 </h3>
-                <p className="ab-text" data-slot="ab-who-text">
+                <p className="ab-text" data-slot="ab-who-text" style={{ whiteSpace: "pre-line" }}>
                   {heroContent.about.views.who.text}
                 </p>
                 <ul className="ab-tags">
-                  <li>Web</li>
-                  <li>App</li>
-                  <li>Code</li>
+                  <li>Website</li>
+                  <li>Mobile App</li>
+                  <li>Dashboard</li>
                 </ul>
               </div>
               <div className="ab-view-media">
