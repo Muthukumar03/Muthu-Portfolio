@@ -2391,7 +2391,7 @@ html.works-open .wk { display: block; }
 
 .rb-pin {
   position: relative;
-  height: 100vh;              /* scroll disabled – static display */
+  height: 380vh;              /* travel + a settling beat before release */
 }
 
 .rb-stage-wrap {
@@ -2677,7 +2677,7 @@ html.works-open .wk { display: block; }
 }
 
 @media (max-width: 720px) {
-  .rb-pin { height: 100vh; }
+  .rb-pin { height: 330vh; }
   .rb-space { perspective: 700px; }
   .rb-center { bottom: 8svh; left: 16px; right: 16px; width: auto; }
   .rb-title { font-size: clamp(24px, 7.2vw, 34px); }
@@ -3388,9 +3388,41 @@ html.works-open .wk { display: block; }
   .ft-brand { font-size: 9.5px; gap: 9px; }
 }
 
+
 /* --- reduced motion ------------------------------------------------ */
 @media (prefers-reduced-motion: force-reduced) {
   .ft { --ftP: 1; padding-top: 14svh; }
   .ft-line { transform: none !important; }
   .ft-col { transform: none !important; }
 }
+
+/* ── Layer 4: Defensive Spline watermark suppression ──────────────── */
+#spline-watermark,
+.spline-watermark,
+[data-spline-html-content],
+[data-spline-html-content] *,
+iframe[title*="Spline" i],
+a[href*="spline.design"],
+a[href*="spline.design"] *,
+a[href*="spline"],
+.rb-stage > :not(canvas),
+.sr-stage > :not(canvas),
+.rb-stage [data-spline-html-content],
+.sr-stage [data-spline-html-content],
+.rb-stage a,
+.sr-stage a,
+.rb-stage iframe,
+.sr-stage iframe {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  max-width: 0 !important;
+  max-height: 0 !important;
+  position: absolute !important;
+  left: -99999px !important;
+  top: -99999px !important;
+}
+

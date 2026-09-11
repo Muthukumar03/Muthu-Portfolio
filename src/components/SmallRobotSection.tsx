@@ -14,13 +14,20 @@ export default function SmallRobotSection() {
 
     const copy = heroContent.smallRobot;
     const style = srSection.style;
-    const finePointer = window.matchMedia("(pointer: fine)");
 
     const SR = {
       scene: "/assets/robot.splinecode",
-      turn: 0.44,
-      tilt: 0.07,
+      turnX: 0.44,   // yaw amount
+      turnY: 0.22,   // pitch amount
+      tilt: 0.07,    // roll tilt
       tau: 0.32,
+    };
+
+    // Resting base pose for the isometric Spline camera angle
+    const baseRot = {
+      x: -0.45949, // base pitch (tilt forward/down)
+      y: -0.80998, // base yaw (angled 45° in isometric view)
+      z: -0.34412, // base roll
     };
 
     let app: any = null,
@@ -33,9 +40,11 @@ export default function SmallRobotSection() {
       entryT = 0,
       lastT = 0;
     let mx = 0,
-      mxTarget = 0;
+      mxTarget = 0,
+      my = 0,
+      myTarget = 0;
 
-    const step = (now: number) => {
+    const tick = (now: number) => {
       const dt = lastT ? Math.min((now - lastT) / 1000, 0.25) : 0.016;
       lastT = now;
 
@@ -43,33 +52,58 @@ export default function SmallRobotSection() {
       if (Math.abs(entryT - entry) < 0.002) entry = entryT;
       style.setProperty("--srIn", entry.toFixed(4));
 
+      // Damped Euler rotation update (exponential decay)
       mx += (mxTarget - mx) * (1 - Math.exp(-dt / SR.tau));
       if (Math.abs(mxTarget - mx) < 0.0008) mx = mxTarget;
+      my += (myTarget - my) * (1 - Math.exp(-dt / SR.tau));
+      if (Math.abs(myTarget - my) < 0.0008) my = myTarget;
+
       if (head) {
-        head.rotation.y = -mx * SR.turn;
-        head.rotation.z = mx * SR.turn * SR.tilt;
+        head.rotation.y = baseRot.y - mx * SR.turnX;      // yaw (left/right)
+        head.rotation.x = baseRot.x + my * SR.turnY;      // pitch (up/down)
+        head.rotation.z = baseRot.z + mx * SR.tilt;       // natural inquisitive roll
       }
 
-      if (!active || (entry === entryT && mx === mxTarget)) {
+      if (!active || (entry === entryT && mx === mxTarget && my === myTarget)) {
         lastT = 0;
         raf = null;
         return;
       }
-      raf = requestAnimationFrame(step);
+      raf = requestAnimationFrame(tick);
     };
 
     const kick = () => {
-      if (raf === null) raf = requestAnimationFrame(step);
+      if (raf === null) raf = requestAnimationFrame(tick);
     };
 
     const onPointerMove = (e: PointerEvent) => {
       if (!active) return;
       const r = srSection.getBoundingClientRect();
       mxTarget = Math.max(-1, Math.min(1, ((e.clientX - r.left) / r.width - 0.5) * 2));
+      myTarget = Math.max(-1, Math.min(1, ((e.clientY - r.top) / r.height - 0.5) * 2));
       kick();
     };
 
     window.addEventListener("pointermove", onPointerMove, { passive: true });
+
+    // ── Watermark stripping helpers ─────────────────────────────────────
+    const stripImages = (data: any) => {
+      if (data?.shared?.images) {
+        for (const k of Object.keys(data.shared.images)) {
+          if (/watermark|spline/i.test(k)) delete data.shared.images[k];
+        }
+      }
+    };
+
+    const purgeSplineBadge = () => {
+      document
+        .querySelectorAll(
+          '[data-spline-html-content], iframe[title*="Spline" i], ' +
+          '#spline-watermark, .spline-watermark, ' +
+          'a[href*="spline.design"], a[href*="spline"]'
+        )
+        .forEach((el) => el.remove());
+    };
 
     const mountRobot = async () => {
       if (loading || app || !canvas) return;
@@ -79,11 +113,66 @@ export default function SmallRobotSection() {
         const { Application } = await importCdn(
           "https://cdn.spline.design/@splinetool/runtime@2.0.13/build/runtime.js"
         );
+
+        // ── Layer 1: Monkey-patch WebGL render pipeline ────────────────
+        const origCreateRenderer = Application.prototype._createRenderer;
+        if (origCreateRenderer) {
+          Application.prototype._createRenderer = async function (...args: any[]) {
+            stripImages(this._data);
+            const renderer = await origCreateRenderer.apply(this, args);
+            if (renderer?.pipeline) {
+              renderer.pipeline.setWatermark = function () {
+                this.watermarkTexture = null;
+                this._effectChainDirty = true;
+              };
+              renderer.pipeline.watermarkTexture = null;
+              renderer.pipeline._chainWatermark = null;
+              renderer.pipeline._effectChainDirty = true;
+              if (renderer.pipeline.disableUIOverlay) renderer.pipeline.disableUIOverlay();
+            }
+            return renderer;
+          };
+        }
+
         app = new Application(canvas);
+
+        // ── Layer 2: _data property trap ──────────────────────────────
+        let splineData: any = undefined;
+        Object.defineProperty(app, "_data", {
+          get() { return splineData; },
+          set(val) {
+            stripImages(val);
+            splineData = val;
+          },
+          configurable: true,
+          enumerable: true,
+        });
+
         await app.load(SR.scene);
         if (app.setGlobalEvents) app.setGlobalEvents(false);
+
+        // ── Layer 3: Scene graph traversal + live DOM observer ─────────
+        if (app._scene?.traverse) {
+          app._scene.traverse((obj: any) => {
+            if (obj.name && /watermark|spline/i.test(obj.name)) {
+              obj.visible = false;
+              if (obj.parent) obj.parent.remove(obj);
+            }
+          });
+        }
+        purgeSplineBadge();
+        if (canvas.parentElement) {
+          const obs = new MutationObserver(() => purgeSplineBadge());
+          obs.observe(canvas.parentElement, { childList: true, subtree: true });
+        }
+
         head = app.findObjectByName ? app.findObjectByName("Cabeza") : null;
-        if (head) head.rotation.y = 0;
+        if (head) {
+          // Apply base pose immediately
+          head.rotation.x = baseRot.x;
+          head.rotation.y = baseRot.y;
+          head.rotation.z = baseRot.z;
+        }
         running = true;
         srSection.classList.add("is-robot-ready");
         (window as any).__rbSmall = { app, head };
@@ -126,16 +215,13 @@ export default function SmallRobotSection() {
     );
     visSr.observe(srSection);
 
-
     return () => {
       window.removeEventListener("pointermove", onPointerMove);
       nearSr.disconnect();
       visSr.disconnect();
       if (raf !== null) cancelAnimationFrame(raf);
       if (app) {
-        try {
-          app.dispose?.();
-        } catch {}
+        try { app.dispose?.(); } catch {}
       }
     };
   }, []);

@@ -16,7 +16,6 @@ export default function BigRobotSection() {
 
     const copy = heroContent.bigRobot;
     const style = rbSection.style;
-    const finePointer = window.matchMedia("(pointer: fine)");
 
     const RB = {
       scene: "/assets/big-robot.splinecode",
@@ -44,9 +43,8 @@ export default function BigRobotSection() {
 
     let pinTop = 0,
       pinRange = 1;
-    // scroll disabled – start at fully-settled state
-    let jp = 1,
-      jpTarget = 1,
+    let jp = 0,
+      jpTarget = 0,
       lastJourney: string | null = null;
 
     const measureRb = () => {
@@ -100,7 +98,7 @@ export default function BigRobotSection() {
     let mx = 0,
       mxTarget = 0;
 
-    const step = (now: number) => {
+    const tick = (now: number) => {
       const dt = lastT ? Math.min((now - lastT) / 1000, 0.25) : 0.016;
       lastT = now;
 
@@ -130,11 +128,11 @@ export default function BigRobotSection() {
         raf = null;
         return;
       }
-      raf = requestAnimationFrame(step);
+      raf = requestAnimationFrame(tick);
     };
 
     const kick = () => {
-      if (raf === null) raf = requestAnimationFrame(step);
+      if (raf === null) raf = requestAnimationFrame(tick);
     };
 
     const onScroll = () => {
@@ -154,8 +152,28 @@ export default function BigRobotSection() {
       kick();
     };
 
+    window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onResize);
     window.addEventListener("pointermove", onPointerMove, { passive: true });
+
+    // ── Watermark stripping helpers ─────────────────────────────────────
+    const stripImages = (data: any) => {
+      if (data?.shared?.images) {
+        for (const k of Object.keys(data.shared.images)) {
+          if (/watermark|spline/i.test(k)) delete data.shared.images[k];
+        }
+      }
+    };
+
+    const purgeSplineBadge = () => {
+      document
+        .querySelectorAll(
+          '[data-spline-html-content], iframe[title*="Spline" i], ' +
+          '#spline-watermark, .spline-watermark, ' +
+          'a[href*="spline.design"], a[href*="spline"]'
+        )
+        .forEach((el) => el.remove());
+    };
 
     const mountRobot = async () => {
       if (loading || app || !canvas) return;
@@ -165,9 +183,59 @@ export default function BigRobotSection() {
         const { Application } = await importCdn(
           "https://cdn.spline.design/@splinetool/runtime@2.0.13/build/runtime.js"
         );
+
+        // ── Layer 1: Monkey-patch WebGL render pipeline ────────────────
+        const origCreateRenderer = Application.prototype._createRenderer;
+        if (origCreateRenderer) {
+          Application.prototype._createRenderer = async function (...args: any[]) {
+            stripImages(this._data);
+            const renderer = await origCreateRenderer.apply(this, args);
+            if (renderer?.pipeline) {
+              renderer.pipeline.setWatermark = function () {
+                this.watermarkTexture = null;
+                this._effectChainDirty = true;
+              };
+              renderer.pipeline.watermarkTexture = null;
+              renderer.pipeline._chainWatermark = null;
+              renderer.pipeline._effectChainDirty = true;
+              if (renderer.pipeline.disableUIOverlay) renderer.pipeline.disableUIOverlay();
+            }
+            return renderer;
+          };
+        }
+
         app = new Application(canvas);
+
+        // ── Layer 2: _data property trap ──────────────────────────────
+        let splineData: any = undefined;
+        Object.defineProperty(app, "_data", {
+          get() { return splineData; },
+          set(val) {
+            stripImages(val);
+            splineData = val;
+          },
+          configurable: true,
+          enumerable: true,
+        });
+
         await app.load(RB.scene);
         if (app.setGlobalEvents) app.setGlobalEvents(false);
+
+        // ── Layer 3: Scene graph traversal + live DOM observer ─────────
+        if (app._scene?.traverse) {
+          app._scene.traverse((obj: any) => {
+            if (obj.name && /watermark|spline/i.test(obj.name)) {
+              obj.visible = false;
+              if (obj.parent) obj.parent.remove(obj);
+            }
+          });
+        }
+        purgeSplineBadge();
+        if (canvas.parentElement) {
+          const obs = new MutationObserver(() => purgeSplineBadge());
+          obs.observe(canvas.parentElement, { childList: true, subtree: true });
+        }
+
         const find = (n: string) => (app.findObjectByName ? app.findObjectByName(n) : null);
         rig = { head: find("Head"), head2: find("Head 2"), neck: find("Neck") };
         running = true;
@@ -217,15 +285,14 @@ export default function BigRobotSection() {
     onScroll();
 
     return () => {
+      window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onResize);
       window.removeEventListener("pointermove", onPointerMove);
       near.disconnect();
       vis.disconnect();
       if (raf !== null) cancelAnimationFrame(raf);
       if (app) {
-        try {
-          app.dispose?.();
-        } catch {}
+        try { app.dispose?.(); } catch {}
       }
     };
   }, []);
