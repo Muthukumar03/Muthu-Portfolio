@@ -420,6 +420,7 @@ export default function CreativeSection({ onOpenWorks }: CreativeSectionProps) {
       btn.classList.add("is-active");
       btn.setAttribute("aria-expanded", "true");
       aboutRoot.classList.add("is-expanded");
+      document.body.style.overflow = "hidden"; // lock page scroll while panel is open
       requestAnimationFrame(() => detail.classList.add("is-open"));
       if (closeBtn) window.setTimeout(() => closeBtn.focus({ preventScroll: true }), 400);
     };
@@ -430,6 +431,7 @@ export default function CreativeSection({ onOpenWorks }: CreativeSectionProps) {
       openBtn = null;
       detail.classList.remove("is-open");
       aboutRoot.classList.remove("is-expanded");
+      document.body.style.overflow = ""; // restore page scroll
       btn.classList.remove("is-active");
       btn.setAttribute("aria-expanded", "false");
       btn.focus({ preventScroll: true });
@@ -460,6 +462,7 @@ export default function CreativeSection({ onOpenWorks }: CreativeSectionProps) {
       doorButtons.forEach((b) => b.removeEventListener("click", handleDoorClick));
       if (closeBtn) closeBtn.removeEventListener("click", closeAbout);
       document.removeEventListener("keydown", handleKeydown);
+      document.body.style.overflow = ""; // safety: restore scroll on unmount
     };
   }, [onOpenWorks]);
 

@@ -2391,7 +2391,7 @@ html.works-open .wk { display: block; }
 
 .rb-pin {
   position: relative;
-  height: 380vh;              /* travel + a settling beat before release */
+  height: 100vh;              /* scroll disabled – static display */
 }
 
 .rb-stage-wrap {
@@ -2677,7 +2677,7 @@ html.works-open .wk { display: block; }
 }
 
 @media (max-width: 720px) {
-  .rb-pin { height: 330vh; }
+  .rb-pin { height: 100vh; }
   .rb-space { perspective: 700px; }
   .rb-center { bottom: 8svh; left: 16px; right: 16px; width: auto; }
   .rb-title { font-size: clamp(24px, 7.2vw, 34px); }

@@ -44,8 +44,9 @@ export default function BigRobotSection() {
 
     let pinTop = 0,
       pinRange = 1;
-    let jp = 0,
-      jpTarget = 0,
+    // scroll disabled – start at fully-settled state
+    let jp = 1,
+      jpTarget = 1,
       lastJourney: string | null = null;
 
     const measureRb = () => {
@@ -153,7 +154,6 @@ export default function BigRobotSection() {
       kick();
     };
 
-    window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onResize);
     window.addEventListener("pointermove", onPointerMove, { passive: true });
 
@@ -217,7 +217,6 @@ export default function BigRobotSection() {
     onScroll();
 
     return () => {
-      window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onResize);
       window.removeEventListener("pointermove", onPointerMove);
       near.disconnect();
