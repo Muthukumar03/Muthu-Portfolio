@@ -248,7 +248,6 @@ export const heroContent: PortfolioContent = {
       groups: [
         { name: "Design Tools", items: ["Figma", "Blender (3D)", "Adobe Illustrator", "Adobe Photoshop", "Adobe After Effects", "Adobe XD"] },
         { name: "Core Skills", items: ["User-Centered Design", "Product Design", "Interaction Design", "User Research", "Wireframing", "Prototyping", "Logo Design", "Design Systems"] },
-        { name: "Experience", items: ["Webnox Technologies (UI/UX Designer)", "ICore Software Technologies (UI/UX Intern)"] },
       ],
     },
     mindset: {
