@@ -475,11 +475,7 @@ export default function CreativeSection({ onOpenWorks }: CreativeSectionProps) {
     >
       <div ref={stageRef} className="s2-stage">
         <div ref={compRef} className="s2-comp">
-          <p className="s2-brand s2-meta">
-            <span className="s2-brand-my">My</span>
-            <span className="s2-brand-creative">Creative</span>
-            <span className="s2-brand-hunch">Hunch</span>
-          </p>
+
 
           <div className="s2-side s2-side--left s2-meta">
             <p>
