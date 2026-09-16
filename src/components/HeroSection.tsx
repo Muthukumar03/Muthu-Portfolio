@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { heroContent } from "@/data/content";
 import Header from "./Header";
+import gsap from "gsap";
 
 interface HeroSectionProps {
   onOpenWorks?: () => void;
@@ -18,76 +19,54 @@ export default function HeroSection({ onOpenWorks }: HeroSectionProps) {
 
   useEffect(() => {
     const docEl = document.documentElement;
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const finePointer = window.matchMedia("(pointer: fine)");
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const portraitLayer = portraitLayerRef.current;
     const atmoLayer = atmoLayerRef.current;
     const cursorLight = cursorLightRef.current;
 
-    let targetX = 0,
-      targetY = 0,
-      curX = 0,
-      curY = 0;
-    let lightTX = window.innerWidth / 2,
-      lightTY = window.innerHeight * 0.42;
-    let lightX = lightTX,
-      lightY = lightTY;
-    let rafId: number | null = null;
-    let interactionsOn = false;
-
-    if (cursorLight) {
-      cursorLight.style.transform = `translate3d(${lightX}px, ${lightY}px, 0)`;
+    if (reduceMotion) {
+      docEl.classList.add("is-ready", "is-settled");
+      return;
     }
 
-    const tick = () => {
-      curX += (targetX - curX) * 0.055;
-      curY += (targetY - curY) * 0.055;
-      lightX += (lightTX - lightX) * 0.045;
-      lightY += (lightTY - lightY) * 0.045;
+    const initX = window.innerWidth / 2;
+    const initY = window.innerHeight * 0.42;
 
-      if (portraitLayer) {
-        portraitLayer.style.transform = `translate3d(${(curX * 10).toFixed(2)}px, ${(curY * 6).toFixed(2)}px, 0)`;
-      }
-      if (atmoLayer) {
-        atmoLayer.style.transform = `translate3d(${(curX * -16).toFixed(2)}px, ${(curY * -9).toFixed(2)}px, 0)`;
-      }
-      if (cursorLight) {
-        cursorLight.style.transform = `translate3d(${lightX.toFixed(1)}px, ${lightY.toFixed(1)}px, 0)`;
-      }
+    if (cursorLight) {
+      gsap.set(cursorLight, { x: initX, y: initY });
+    }
 
-      const still =
-        Math.abs(targetX - curX) < 0.001 &&
-        Math.abs(targetY - curY) < 0.001 &&
-        Math.abs(lightTX - lightX) < 0.1 &&
-        Math.abs(lightTY - lightY) < 0.1;
+    const lightXTo = cursorLight ? gsap.quickTo(cursorLight, "x", { duration: 0.45, ease: "power2.out" }) : null;
+    const lightYTo = cursorLight ? gsap.quickTo(cursorLight, "y", { duration: 0.45, ease: "power2.out" }) : null;
 
-      rafId = still ? null : requestAnimationFrame(tick);
-    };
+    const portraitXTo = portraitLayer ? gsap.quickTo(portraitLayer, "x", { duration: 0.5, ease: "power2.out" }) : null;
+    const portraitYTo = portraitLayer ? gsap.quickTo(portraitLayer, "y", { duration: 0.5, ease: "power2.out" }) : null;
+
+    const atmoXTo = atmoLayer ? gsap.quickTo(atmoLayer, "x", { duration: 0.6, ease: "power2.out" }) : null;
+    const atmoYTo = atmoLayer ? gsap.quickTo(atmoLayer, "y", { duration: 0.6, ease: "power2.out" }) : null;
 
     const onPointerMove = (e: PointerEvent) => {
       if (docEl.classList.contains("beyond-hero")) return;
-      targetX = e.clientX / window.innerWidth - 0.5;
-      targetY = e.clientY / window.innerHeight - 0.5;
-      lightTX = e.clientX;
-      lightTY = e.clientY;
-      if (interactionsOn && rafId === null) rafId = requestAnimationFrame(tick);
+      const targetX = e.clientX / window.innerWidth - 0.5;
+      const targetY = e.clientY / window.innerHeight - 0.5;
+
+      lightXTo?.(e.clientX);
+      lightYTo?.(e.clientY);
+      portraitXTo?.(targetX * 10);
+      portraitYTo?.(targetY * 6);
+      atmoXTo?.(targetX * -16);
+      atmoYTo?.(targetY * -9);
     };
 
     const enableInteractions = () => {
-      interactionsOn = true;
       window.addEventListener("pointermove", onPointerMove, { passive: true });
     };
 
     const disableInteractions = () => {
-      interactionsOn = false;
       window.removeEventListener("pointermove", onPointerMove);
-      if (rafId !== null) {
-        cancelAnimationFrame(rafId);
-        rafId = null;
-      }
-      if (portraitLayer) portraitLayer.style.transform = "";
-      if (atmoLayer) atmoLayer.style.transform = "";
+      if (portraitLayer) gsap.set(portraitLayer, { clearProps: "x,y" });
+      if (atmoLayer) gsap.set(atmoLayer, { clearProps: "x,y" });
     };
 
     const SETTLE_AT_MS = 6000;

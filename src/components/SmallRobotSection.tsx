@@ -250,9 +250,6 @@ export default function SmallRobotSection() {
           <p className="sr-sub" data-slot="sr-sub">
             {copy.description}
           </p>
-          <p className="sr-note">
-            <span data-slot="sr-note">{copy.note}</span>
-          </p>
         </div>
 
         <div className="sr-stage">

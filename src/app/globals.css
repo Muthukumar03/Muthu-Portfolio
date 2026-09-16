@@ -2749,12 +2749,11 @@ html.works-open .wk { display: block; }
    ============================================================ */
 .sr {
   position: relative;
-  min-height: 100vh;
-  min-height: 100svh;
+  min-height: auto;
   display: grid;
   place-items: center;
   overflow: hidden;
-  padding: 12svh clamp(20px, 5vw, 88px) 14svh;
+  padding: clamp(48px, 8svh, 88px) clamp(20px, 5vw, 88px) clamp(20px, 3.5svh, 40px);
   background: #050202;
   color: #fff;
   --srIn: 0;
@@ -2863,7 +2862,7 @@ html.works-open .wk { display: block; }
 }
 
 @media (max-width: 720px) {
-  .sr { padding: 10svh 18px 12svh; }
+  .sr { padding: 5svh 18px 3svh; }
   .sr-title { font-size: clamp(26px, 7.6vw, 36px); }
   .sr-sub { font-size: 12.5px; }
   .sr-canvas { width: 86vw; height: 42svh; }
@@ -3175,8 +3174,7 @@ html.works-open .wk { display: block; }
 .ft {
   position: relative;
   overflow: hidden;
-  /* the breathing beat after the small robot lives in this top padding */
-  padding: 26svh clamp(20px, 5vw, 88px) clamp(28px, 5svh, 54px);
+  padding: clamp(24px, 4svh, 50px) clamp(20px, 5vw, 88px) clamp(28px, 5svh, 54px);
   background: #040202;
   color: #fff;
   --ftP: 0;
@@ -3391,7 +3389,7 @@ html.works-open .wk { display: block; }
 
 /* --- responsive ---------------------------------------------------- */
 @media (max-width: 720px) {
-  .ft { padding: 18svh 18px 24px; }
+  .ft { padding: 4svh 18px 24px; }
   .ft-line { font-size: clamp(30px, 11vw, 52px); }
   .ft-mail { margin-top: 30px; }
   .ft-mail-address { font-size: 15px; }

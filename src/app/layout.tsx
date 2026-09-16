@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Anton, Archivo, Inter } from "next/font/google";
 import "./globals.css";
+import "lenis/dist/lenis.css";
+import SmoothScroll from "@/components/SmoothScroll";
 
 const anton = Anton({
   weight: "400",
@@ -51,7 +53,10 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body>{children}</body>
+      <body>
+        <SmoothScroll />
+        {children}
+      </body>
     </html>
   );
 }

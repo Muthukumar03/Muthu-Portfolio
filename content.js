@@ -121,7 +121,7 @@ const heroContent = {
     eyebrow: "( 06 · Interaction )",
     titleLines: ["Crafting meaningful", "digital experiences."],
     description: "Combining strategic user research with clean visual design.",
-    note: "Move your cursor · it follows",
+    note: "",
   },
 
   /* ---- FOOTER ---- */
