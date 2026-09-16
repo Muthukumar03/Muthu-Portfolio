@@ -2382,6 +2382,10 @@ html.works-open .wk { display: block; }
    ============================================================ */
 .rb {
   position: relative;
+  /* overflow:clip (not hidden) so sticky children are still allowed to
+     stick, but 3D-transformed descendants cannot paint outside the
+     section's own bounding box into the next section. */
+  overflow: clip;
   background: #040202;
   color: #fff;
   --rbIn: 0;    /* section entrance 0..1 */
@@ -2400,6 +2404,10 @@ html.works-open .wk { display: block; }
   height: 100vh;
   height: 100svh;
   overflow: hidden;
+  /* A translate(0) forces a new compositing layer, which means the
+     browser flattens the 3D context here — children with
+     transform-style:preserve-3d can no longer escape the overflow clip. */
+  transform: translate(0);
 }
 
 /* --- environment ------------------------------------------------ */
@@ -2877,6 +2885,10 @@ html.works-open .wk { display: block; }
    ============================================================ */
 .ed {
   position: relative;
+  /* Establish an isolated stacking context so this section always
+     paints on top of the previous section's sticky/3D elements. */
+  isolation: isolate;
+  z-index: 1;
   background: #050202;
   color: #fff;
 }

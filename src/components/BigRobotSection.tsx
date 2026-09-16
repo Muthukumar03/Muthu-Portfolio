@@ -314,12 +314,8 @@ export default function BigRobotSection() {
             <span className="rb-vignette"></span>
           </div>
 
-          <p className="rb-tag rb-tag--l" data-slot="rb-label-l">
-            {copy.labels.left}
-          </p>
-          <p className="rb-tag rb-tag--r" data-slot="rb-label-r">
-            {copy.labels.right}
-          </p>
+
+
 
           <div className="rb-space">
             <div className="rb-stage">

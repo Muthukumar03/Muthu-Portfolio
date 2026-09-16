@@ -578,8 +578,6 @@ export default function CreativeSection({ onOpenWorks }: CreativeSectionProps) {
 
         {/* Section 02 -> 03 Puzzle transition layers */}
         <div className="s3-atmo" aria-hidden="true">
-          <p className="s3-credit s3-credit--l">MyCreativeHunch Studio</p>
-          <p className="s3-credit s3-credit--r">&copy; 2026 MyCreativeHunch</p>
         </div>
 
         {/* Section 03: About Me */}
@@ -590,10 +588,7 @@ export default function CreativeSection({ onOpenWorks }: CreativeSectionProps) {
             <span className="p3-dim-3">Ready to Scale</span>
           </div>
 
-          <p className="p3-corner p3-corner--l">
-            Transforming <b>Visions</b> to Reality
-          </p>
-          <p className="p3-corner p3-corner--r">www.mycreativehunch.com</p>
+
 
           <div className="ab-comp">
             <span className="ab-title-mask">
@@ -732,8 +727,6 @@ export default function CreativeSection({ onOpenWorks }: CreativeSectionProps) {
             </div>
 
             <div className="ab-foot">
-              <span>( 03 &middot; About )</span>
-              <span>Website &middot; Mobile App &middot; Dashboard</span>
             </div>
           </div>
 

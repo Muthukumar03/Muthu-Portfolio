@@ -181,9 +181,7 @@ export default function EditorialSection() {
 
           <div className="ed-grid">
             <div className="ed-left">
-              <p className="ed-eyebrow" data-slot="ed-eyebrow">
-                {copy.eyebrow}
-              </p>
+
               <h2 className="ed-statement">
                 <span className="ed-mask">
                   <span className="ed-line" data-slot="ed-line-1">

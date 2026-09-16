@@ -242,9 +242,7 @@ export default function SmallRobotSection() {
 
       <div className="sr-inner">
         <div className="sr-copy">
-          <p className="sr-eyebrow" data-slot="sr-eyebrow">
-            {copy.eyebrow}
-          </p>
+
           <h2 className="sr-title">
             <span data-slot="sr-title-1">{copy.titleLines[0]}</span>
             <span data-slot="sr-title-2">{copy.titleLines[1]}</span>

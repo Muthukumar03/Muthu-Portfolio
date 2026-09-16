@@ -90,9 +90,7 @@ export default function Footer({ onOpenWorks }: FooterProps) {
       </div>
 
       <div className="ft-in">
-        <p className="ft-eyebrow" data-slot="ft-eyebrow">
-          {copy.eyebrow}
-        </p>
+
 
         <h2 className="ft-headline">
           <span className="ft-mask">
