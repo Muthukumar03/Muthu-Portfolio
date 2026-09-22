@@ -2,6 +2,8 @@
 
 import React, { useEffect, useRef } from "react";
 import { heroContent, FooterColumn } from "@/data/content";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 interface FooterProps {
   onOpenWorks?: () => void;
@@ -16,15 +18,11 @@ export default function Footer({ onOpenWorks }: FooterProps) {
 
     const style = ftSection.style;
     const lines = [...ftSection.querySelectorAll<HTMLElement>(".ft-line")];
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
     const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
-    let p = 0,
-      pTarget = 0,
-      raf: number | null = null,
-      lastT = 0,
-      lastKey: string | null = null;
+    let lastKey: string | null = null;
 
     const render = (v: number) => {
       const key = v.toFixed(4);
@@ -37,44 +35,35 @@ export default function Footer({ onOpenWorks }: FooterProps) {
       style.setProperty("--ftP", v.toFixed(4));
     };
 
-    const step = (now: number) => {
-      const dt = lastT ? Math.min((now - lastT) / 1000, 0.25) : 0.016;
-      lastT = now;
-      p += (pTarget - p) * (1 - Math.exp(-dt / 0.13));
-      if (Math.abs(pTarget - p) < 0.0006) p = pTarget;
-      render(p);
-      if (p === pTarget) {
-        lastT = 0;
-        raf = null;
-        return;
-      }
-      raf = requestAnimationFrame(step);
-    };
+    if (reduceMotion) {
+      render(1);
+      return;
+    }
 
-    const kick = () => {
-      if (raf === null) raf = requestAnimationFrame(step);
-    };
+    const st = ScrollTrigger.create({
+      trigger: ftSection,
+      start: "top 85%",
+      end: "top 25%",
+      scrub: 1.0,
+      onUpdate: (self) => {
+        render(self.progress);
+      },
+    });
 
-    const onScroll = () => {
-      const r = ftSection.getBoundingClientRect();
-      pTarget = clamp01((window.innerHeight - r.top) / (window.innerHeight * 0.72));
-      kick();
-    };
-
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    onScroll();
+    render(st.progress);
 
     return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-      if (raf !== null) cancelAnimationFrame(raf);
+      st.kill();
     };
   }, []);
 
   const handleBackToTop = () => {
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
+    const lenis = (window as any).__lenis;
+    if (lenis) {
+      lenis.scrollTo(0, { duration: 1.6 });
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   };
 
   const copy = heroContent.footer;

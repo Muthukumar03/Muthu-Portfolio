@@ -2,6 +2,8 @@
 
 import React, { useEffect, useRef } from "react";
 import { heroContent, TechIdea } from "@/data/content";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 export default function BigRobotSection() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -41,18 +43,11 @@ export default function BigRobotSection() {
     const band = (v: number, a: number, b: number) => clamp01((v - a) / (b - a));
     const isMob = () => window.innerWidth <= 720;
 
-    let pinTop = 0,
-      pinRange = 1;
-    let jp = 0,
-      jpTarget = 0,
-      lastJourney: string | null = null;
-
     const measureRb = () => {
-      const pinEl = rbSection.querySelector<HTMLElement>(".rb-pin");
-      const r = (pinEl || rbSection).getBoundingClientRect();
-      pinTop = r.top + window.scrollY;
-      pinRange = Math.max(1, (pinEl || rbSection).offsetHeight - window.innerHeight);
+      ScrollTrigger.refresh();
     };
+
+    let lastJourney: string | null = null;
 
     const renderJourney = (raw: number) => {
       const key = raw.toFixed(4);
@@ -90,69 +85,57 @@ export default function BigRobotSection() {
       loading = false,
       running = false,
       rig: any = null;
-    let raf: number | null = null,
-      active = false,
-      entry = 0,
-      entryT = 0,
-      lastT = 0;
-    let mx = 0,
-      mxTarget = 0;
+    let active = false;
 
-    const tick = (now: number) => {
-      const dt = lastT ? Math.min((now - lastT) / 1000, 0.25) : 0.016;
-      lastT = now;
-
-      const before = mx;
-      mx += (mxTarget - mx) * (1 - Math.exp(-dt / RB.tau));
-      if (Math.abs(mxTarget - mx) < 0.0008) mx = mxTarget;
-      if (rig && mx !== before) {
-        const hy = -mx * RB.look;
-        if (rig.head) {
-          rig.head.rotation.y = hy;
-          rig.head.rotation.x = Math.abs(mx) * RB.lookX;
-        }
-        if (rig.head2) rig.head2.rotation.y = hy * 0.18;
-        if (rig.neck) rig.neck.rotation.y = hy * 0.3;
-      }
-
-      jp += (jpTarget - jp) * (1 - Math.exp(-dt / 0.11));
-      if (Math.abs(jpTarget - jp) < 0.0004) jp = jpTarget;
-      entry += (entryT - entry) * (1 - Math.exp(-dt / 0.5));
-      if (Math.abs(entryT - entry) < 0.002) entry = entryT;
-      style.setProperty("--rbIn", entry.toFixed(4));
-      renderJourney(jp);
-
-      const settled = jp === jpTarget && entry === entryT && mx === mxTarget;
-      if (settled) {
-        lastT = 0;
-        raf = null;
-        return;
-      }
-      raf = requestAnimationFrame(tick);
-    };
-
-    const kick = () => {
-      if (raf === null) raf = requestAnimationFrame(tick);
-    };
-
-    const onScroll = () => {
-      jpTarget = clamp01((window.scrollY - pinTop) / pinRange);
-      kick();
-    };
+    // ── GSAP ScrollTrigger for 3D Journey & panels ─────────────────────
+    const pinEl = rbSection.querySelector<HTMLElement>(".rb-pin") || rbSection;
+    const st = ScrollTrigger.create({
+      trigger: pinEl,
+      start: "top top",
+      end: "bottom bottom",
+      scrub: 1.0,
+      onUpdate: (self) => {
+        renderJourney(self.progress);
+      },
+    });
 
     const onResize = () => {
       measureRb();
-      onScroll();
     };
 
     const onPointerMove = (e: PointerEvent) => {
-      if (!active) return;
+      if (!active || !rig) return;
       const r = rbSection.getBoundingClientRect();
-      mxTarget = Math.max(-1, Math.min(1, ((e.clientX - r.left) / r.width - 0.5) * 2));
-      kick();
+      const mx = Math.max(-1, Math.min(1, ((e.clientX - r.left) / r.width - 0.5) * 2));
+      const hy = -mx * RB.look;
+
+      if (rig.head) {
+        gsap.to(rig.head.rotation, {
+          y: hy,
+          x: Math.abs(mx) * RB.lookX,
+          duration: 0.35,
+          ease: "power2.out",
+          overwrite: "auto",
+        });
+      }
+      if (rig.head2) {
+        gsap.to(rig.head2.rotation, {
+          y: hy * 0.18,
+          duration: 0.35,
+          ease: "power2.out",
+          overwrite: "auto",
+        });
+      }
+      if (rig.neck) {
+        gsap.to(rig.neck.rotation, {
+          y: hy * 0.3,
+          duration: 0.45,
+          ease: "power2.out",
+          overwrite: "auto",
+        });
+      }
     };
 
-    window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onResize);
     window.addEventListener("pointermove", onPointerMove, { passive: true });
 
@@ -241,11 +224,10 @@ export default function BigRobotSection() {
         running = true;
         rbSection.classList.add("is-robot-ready");
         (window as any).__rbBig = { app, rig, panels };
-        kick();
+        renderJourney(st.progress);
       } catch (err) {
         console.error("Big robot mount error:", err);
         loading = false;
-        kick();
       }
     };
 
@@ -265,7 +247,12 @@ export default function BigRobotSection() {
         entries.forEach((en) => {
           active = en.isIntersecting && en.intersectionRatio > 0.02;
           if (active) {
-            entryT = 1;
+            gsap.to(style, {
+              "--rbIn": 1,
+              duration: 0.8,
+              ease: "power2.out",
+              overwrite: "auto",
+            });
             if (app && !running) {
               app.play();
               running = true;
@@ -274,23 +261,20 @@ export default function BigRobotSection() {
             app.stop();
             running = false;
           }
-          kick();
         });
       },
       { threshold: [0, 0.12] }
     );
     vis.observe(rbSection);
 
-    measureRb();
-    onScroll();
+    renderJourney(st.progress);
 
     return () => {
-      window.removeEventListener("scroll", onScroll);
+      st.kill();
       window.removeEventListener("resize", onResize);
       window.removeEventListener("pointermove", onPointerMove);
       near.disconnect();
       vis.disconnect();
-      if (raf !== null) cancelAnimationFrame(raf);
       if (app) {
         try { app.dispose?.(); } catch {}
       }

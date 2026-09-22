@@ -2,6 +2,8 @@
 
 import React, { useEffect, useRef } from "react";
 import { heroContent, SkillGroup } from "@/data/content";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 export default function EditorialSection() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -37,22 +39,14 @@ export default function EditorialSection() {
     const band = (v: number, a: number, b: number) => clamp01((v - a) / (b - a));
     const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
 
-    let pinTop = 0,
-      pinRange = 1;
-    let p = 0,
-      pTarget = 0,
-      raf: number | null = null,
-      lastT = 0;
     let offsets: number[] = [],
       centre = 0,
       lastKey: string | null = null;
 
     const measureEd = () => {
-      const r = pinEl.getBoundingClientRect();
-      pinTop = r.top + window.scrollY;
-      pinRange = Math.max(1, pinEl.offsetHeight - window.innerHeight);
       offsets = items.map((el) => el.offsetTop + el.offsetHeight / 2);
       centre = reelBox ? reelBox.clientHeight * 0.5 : 0;
+      ScrollTrigger.refresh();
     };
 
     const render = (v: number) => {
@@ -100,37 +94,24 @@ export default function EditorialSection() {
       style.setProperty("--edP", clamp01(v).toFixed(4));
     };
 
-    const step = (now: number) => {
-      const dt = lastT ? Math.min((now - lastT) / 1000, 0.25) : 0.016;
-      lastT = now;
-      p += (pTarget - p) * (1 - Math.exp(-dt / 0.11));
-      if (Math.abs(pTarget - p) < 0.0004) p = pTarget;
-      render(p);
-      if (p === pTarget) {
-        lastT = 0;
-        raf = null;
-        return;
-      }
-      raf = requestAnimationFrame(step);
-    };
-
-    const kick = () => {
-      if (raf === null) raf = requestAnimationFrame(step);
-    };
-
-    const onScroll = () => {
-      pTarget = clamp01((window.scrollY - pinTop) / pinRange);
-      kick();
-    };
+    // ── GSAP ScrollTrigger setup ───────────────────────────────────────
+    const st = ScrollTrigger.create({
+      trigger: pinEl,
+      start: "top top",
+      end: "bottom bottom",
+      scrub: 1.0,
+      onUpdate: (self) => {
+        render(self.progress);
+      },
+    });
 
     const onResize = () => {
       measureEd();
-      onScroll();
+      if (st) render(st.progress);
     };
 
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
-    window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onResize);
     if (document.fonts && document.fonts.ready) {
       document.fonts.ready.then(onResize);
@@ -154,13 +135,12 @@ export default function EditorialSection() {
       });
     } else {
       measureEd();
-      onScroll();
+      render(st.progress);
     }
 
     return () => {
-      window.removeEventListener("scroll", onScroll);
+      st.kill();
       window.removeEventListener("resize", onResize);
-      if (raf !== null) cancelAnimationFrame(raf);
     };
   }, []);
 

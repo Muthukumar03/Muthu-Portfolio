@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React from "react";
 import { heroContent } from "@/data/content";
 
 interface HeaderProps {
@@ -8,22 +8,6 @@ interface HeaderProps {
 }
 
 export default function Header({ onOpenWorks }: HeaderProps) {
-  const themeBtnRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    const btn = themeBtnRef.current;
-    if (!btn) return;
-
-    const handleThemeClick = () => {
-      btn.classList.remove("is-pulse");
-      void btn.offsetWidth; // restart pulse animation
-      btn.classList.add("is-pulse");
-    };
-
-    btn.addEventListener("click", handleThemeClick);
-    return () => btn.removeEventListener("click", handleThemeClick);
-  }, []);
-
   return (
     <header className="site-header">
       <div className="header-pill fx fx-header">
@@ -85,24 +69,6 @@ export default function Header({ onOpenWorks }: HeaderProps) {
               <path d="M3.2 10.8 10.8 3.2M5 3.2h5.8V9" />
             </svg>
           </a>
-          <button
-            ref={themeBtnRef}
-            className="theme-btn"
-            type="button"
-            aria-label="Switch theme"
-          >
-            <svg
-              viewBox="0 0 20 20"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              aria-hidden="true"
-            >
-              <circle cx="10" cy="10" r="3.3" />
-              <path d="M10 1.6v2.1M10 16.3v2.1M1.6 10h2.1M16.3 10h2.1M4.1 4.1l1.5 1.5M14.4 14.4l1.5 1.5M15.9 4.1l-1.5 1.5M5.6 14.4l-1.5 1.5" />
-            </svg>
-          </button>
         </div>
       </div>
     </header>

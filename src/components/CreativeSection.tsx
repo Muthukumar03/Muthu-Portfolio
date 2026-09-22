@@ -3,6 +3,8 @@
 import React, { useEffect, useRef } from "react";
 import Image from "next/image";
 import { heroContent } from "@/data/content";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 interface CreativeSectionProps {
   onOpenWorks?: () => void;
@@ -177,19 +179,13 @@ export default function CreativeSection({ onOpenWorks }: CreativeSectionProps) {
       layoutFragments();
     };
 
-    let pinTop = 0,
-      range = 1,
+    let range = 1,
       s2Range = 1,
       trRange = 1;
     let centers: { x: number; y: number }[] = [];
     let centroid = { x: 0, y: 0 };
-    let target = 0,
-      cur = -1,
-      rafS2: number | null = null;
 
     const measure = () => {
-      const r = s2pin.getBoundingClientRect();
-      pinTop = r.top + window.scrollY;
       range = Math.max(1, s2pin.offsetHeight - window.innerHeight);
       s2Range = window.innerHeight * (isMobileLayout() ? 1.8 : 2.4);
       trRange = window.innerHeight * (isMobileLayout() ? 2.8 : 3.4);
@@ -366,30 +362,24 @@ export default function CreativeSection({ onOpenWorks }: CreativeSectionProps) {
       }
     };
 
-    const step = () => {
-      cur += (target - cur) * 0.16;
-      if (Math.abs(target - cur) < 0.0004) cur = target;
-      apply(cur);
-      rafS2 = cur === target ? null : requestAnimationFrame(step);
-    };
-
-    const onS2Scroll = () => {
-      target = clamp01((window.scrollY - pinTop) / range);
-      docEl.classList.toggle("beyond-hero", window.scrollY > window.innerHeight * 0.85);
-      if (rafS2 === null) rafS2 = requestAnimationFrame(step);
-    };
+    // ── GSAP ScrollTrigger setup for silky smooth scrubbed scroll ──────
+    const st = ScrollTrigger.create({
+      trigger: s2pin,
+      start: "top top",
+      end: "bottom bottom",
+      scrub: 1.0,
+      onUpdate: (self) => {
+        apply(self.progress);
+        docEl.classList.toggle("beyond-hero", window.scrollY > window.innerHeight * 0.85);
+      },
+    });
 
     const refresh = () => {
       if (builtMobile !== null && builtMobile !== isMobileLayout()) buildFragments();
       measure();
-      target = clamp01((window.scrollY - pinTop) / range);
-      cur = target;
-      lastP2 = -1;
-      lastPt = -1;
-      apply(cur);
+      if (st) apply(st.progress);
     };
 
-    window.addEventListener("scroll", onS2Scroll, { passive: true });
     window.addEventListener("resize", refresh);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(refresh);
     buildFragments();
@@ -402,6 +392,9 @@ export default function CreativeSection({ onOpenWorks }: CreativeSectionProps) {
       if (!detail || openBtn || !aboutRoot) return;
       openBtn = btn;
       const key = btn.dataset.ab;
+
+      // Smoothly stop background scrolling while panel is open
+      (window as any).__lenis?.stop();
 
       const dRect = detail.getBoundingClientRect();
       const bRect = btn.getBoundingClientRect();
@@ -421,7 +414,20 @@ export default function CreativeSection({ onOpenWorks }: CreativeSectionProps) {
       btn.setAttribute("aria-expanded", "true");
       aboutRoot.classList.add("is-expanded");
       document.body.style.overflow = "hidden"; // lock page scroll while panel is open
-      requestAnimationFrame(() => detail.classList.add("is-open"));
+
+      // GSAP smooth entrance for the detail modal
+      gsap.fromTo(
+        detail,
+        { opacity: 0, scale: 0.92 },
+        {
+          opacity: 1,
+          scale: 1,
+          duration: 0.45,
+          ease: "power3.out",
+          onStart: () => detail.classList.add("is-open"),
+        }
+      );
+
       if (closeBtn) window.setTimeout(() => closeBtn.focus({ preventScroll: true }), 400);
     };
 
@@ -429,12 +435,22 @@ export default function CreativeSection({ onOpenWorks }: CreativeSectionProps) {
       if (!detail || !openBtn || !aboutRoot) return;
       const btn = openBtn;
       openBtn = null;
-      detail.classList.remove("is-open");
-      aboutRoot.classList.remove("is-expanded");
-      document.body.style.overflow = ""; // restore page scroll
-      btn.classList.remove("is-active");
-      btn.setAttribute("aria-expanded", "false");
-      btn.focus({ preventScroll: true });
+
+      gsap.to(detail, {
+        opacity: 0,
+        scale: 0.94,
+        duration: 0.3,
+        ease: "power2.inOut",
+        onComplete: () => {
+          detail.classList.remove("is-open");
+          aboutRoot.classList.remove("is-expanded");
+          document.body.style.overflow = ""; // restore page scroll
+          (window as any).__lenis?.start();
+          btn.classList.remove("is-active");
+          btn.setAttribute("aria-expanded", "false");
+          btn.focus({ preventScroll: true });
+        },
+      });
     };
 
     const handleDoorClick = (e: MouseEvent) => {
@@ -456,13 +472,13 @@ export default function CreativeSection({ onOpenWorks }: CreativeSectionProps) {
     document.addEventListener("keydown", handleKeydown);
 
     return () => {
-      window.removeEventListener("scroll", onS2Scroll);
+      st.kill();
       window.removeEventListener("resize", refresh);
-      if (rafS2 !== null) cancelAnimationFrame(rafS2);
       doorButtons.forEach((b) => b.removeEventListener("click", handleDoorClick));
       if (closeBtn) closeBtn.removeEventListener("click", closeAbout);
       document.removeEventListener("keydown", handleKeydown);
       document.body.style.overflow = ""; // safety: restore scroll on unmount
+      (window as any).__lenis?.start();
     };
   }, [onOpenWorks]);
 

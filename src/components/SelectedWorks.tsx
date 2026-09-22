@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState, useImperativeHandle, forwardRef } from "react";
 import Image from "next/image";
 import { heroContent, Project } from "@/data/content";
+import gsap from "gsap";
 
 export interface SelectedWorksHandle {
   enter: () => void;
@@ -59,6 +60,7 @@ const SelectedWorks = forwardRef<SelectedWorksHandle, {}>((props, ref) => {
 
     flashTo(
       () => {
+        (window as any).__lenis?.stop();
         docEl.classList.add("works-open");
         wk.setAttribute("aria-hidden", "false");
         const mainEl = document.querySelector("main");
@@ -85,6 +87,7 @@ const SelectedWorks = forwardRef<SelectedWorksHandle, {}>((props, ref) => {
         wk.setAttribute("aria-hidden", "true");
         const mainEl = document.querySelector("main");
         if (mainEl) mainEl.removeAttribute("aria-hidden");
+        (window as any).__lenis?.start();
       },
       () => {
         const target = document.querySelector<HTMLElement>(".ab-box--what");
@@ -192,23 +195,28 @@ const SelectedWorks = forwardRef<SelectedWorksHandle, {}>((props, ref) => {
       }
     };
 
-    const wkStep = () => {
-      wp += (wpTarget - wp) * 0.16;
-      if (Math.abs(wpTarget - wp) < 0.0006) wp = wpTarget;
-      applyWk(wp);
-      wkRaf = wp === wpTarget ? null : requestAnimationFrame(wkStep);
-    };
+    const camera = { wp: 0 };
+    let currentTween: gsap.core.Tween | null = null;
 
     const onWkScroll = () => {
-      wpTarget = clampW(scroller.scrollTop / wkRange);
-      if (wkRaf === null) wkRaf = requestAnimationFrame(wkStep);
+      const target = clampW(scroller.scrollTop / wkRange);
+      currentTween?.kill();
+      currentTween = gsap.to(camera, {
+        wp: target,
+        duration: 0.45,
+        ease: "power2.out",
+        overwrite: "auto",
+        onUpdate: () => {
+          applyWk(camera.wp);
+        },
+      });
     };
 
     scroller.addEventListener("scroll", onWkScroll, { passive: true });
     const handleResize = () => {
       if (document.documentElement.classList.contains("works-open")) {
         measureWk();
-        applyWk(wp);
+        applyWk(camera.wp);
       }
     };
     window.addEventListener("resize", handleResize);
@@ -228,10 +236,11 @@ const SelectedWorks = forwardRef<SelectedWorksHandle, {}>((props, ref) => {
     document.addEventListener("keydown", handleKeydown);
 
     return () => {
+      currentTween?.kill();
       scroller.removeEventListener("scroll", onWkScroll);
       window.removeEventListener("resize", handleResize);
       document.removeEventListener("keydown", handleKeydown);
-      if (wkRaf !== null) cancelAnimationFrame(wkRaf);
+      (window as any).__lenis?.start();
     };
   }, [projects.length, N]);
 
