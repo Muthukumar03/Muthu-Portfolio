@@ -1,9 +1,20 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import Image from "next/image";
+import dynamic from "next/dynamic";
 import { heroContent } from "@/data/content";
 import Header from "./Header";
+
+const RippleDistortion = dynamic(() => import("./RippleDistortion"), {
+  ssr: false,
+  loading: () => (
+    <img
+      className="portrait-img"
+      src="/assets/muthu-bg.png"
+      alt="Portrait of Muthukumar G"
+    />
+  ),
+});
 
 interface HeroSectionProps {
   onOpenWorks?: () => void;
@@ -140,13 +151,26 @@ export default function HeroSection({ onOpenWorks }: HeroSectionProps) {
       <div ref={portraitLayerRef} className="portrait-parallax">
         <div className="portrait-frame">
           <div className="portrait-stage fx fx-portrait">
-            <Image
-              className="portrait-img"
+            <RippleDistortion
               src="/assets/muthu-bg.png"
-              width={1408}
-              height={1117}
-              priority
-              alt={`Portrait of ${heroContent.headline}, software developer, lit by warm red cinematic light`}
+              className="portrait-img"
+              brushSize={50}
+              strength={0.075}
+              swirl={3}
+              rings={1.5}
+              spread={5}
+              fade={3}
+              spacing={8}
+              clickStrength={2}
+              dispersion={0}
+              glint={0}
+              tintAmount={0.1}
+              tint="#ef4444"
+              highlightColor="#ffffff"
+              trigger="hover"
+              quality="low"
+              grayscale={false}
+              enabled={true}
             />
             <div className="portrait-veil fx-veil" aria-hidden="true"></div>
             <div className="portrait-sweep fx-sweep" aria-hidden="true"></div>
