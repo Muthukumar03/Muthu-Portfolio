@@ -393,9 +393,6 @@ export default function CreativeSection({ onOpenWorks }: CreativeSectionProps) {
       openBtn = btn;
       const key = btn.dataset.ab;
 
-      // Smoothly stop background scrolling while panel is open
-      (window as any).__lenis?.stop();
-
       const dRect = detail.getBoundingClientRect();
       const bRect = btn.getBoundingClientRect();
       detail.style.transformOrigin =
@@ -413,21 +410,7 @@ export default function CreativeSection({ onOpenWorks }: CreativeSectionProps) {
       btn.classList.add("is-active");
       btn.setAttribute("aria-expanded", "true");
       aboutRoot.classList.add("is-expanded");
-      document.body.style.overflow = "hidden"; // lock page scroll while panel is open
-
-      // GSAP smooth entrance for the detail modal
-      gsap.fromTo(
-        detail,
-        { opacity: 0, scale: 0.92 },
-        {
-          opacity: 1,
-          scale: 1,
-          duration: 0.45,
-          ease: "power3.out",
-          onStart: () => detail.classList.add("is-open"),
-        }
-      );
-
+      requestAnimationFrame(() => detail.classList.add("is-open"));
       if (closeBtn) window.setTimeout(() => closeBtn.focus({ preventScroll: true }), 400);
     };
 
@@ -435,22 +418,11 @@ export default function CreativeSection({ onOpenWorks }: CreativeSectionProps) {
       if (!detail || !openBtn || !aboutRoot) return;
       const btn = openBtn;
       openBtn = null;
-
-      gsap.to(detail, {
-        opacity: 0,
-        scale: 0.94,
-        duration: 0.3,
-        ease: "power2.inOut",
-        onComplete: () => {
-          detail.classList.remove("is-open");
-          aboutRoot.classList.remove("is-expanded");
-          document.body.style.overflow = ""; // restore page scroll
-          (window as any).__lenis?.start();
-          btn.classList.remove("is-active");
-          btn.setAttribute("aria-expanded", "false");
-          btn.focus({ preventScroll: true });
-        },
-      });
+      detail.classList.remove("is-open");
+      aboutRoot.classList.remove("is-expanded");
+      btn.classList.remove("is-active");
+      btn.setAttribute("aria-expanded", "false");
+      btn.focus({ preventScroll: true });
     };
 
     const handleDoorClick = (e: MouseEvent) => {
@@ -477,8 +449,6 @@ export default function CreativeSection({ onOpenWorks }: CreativeSectionProps) {
       doorButtons.forEach((b) => b.removeEventListener("click", handleDoorClick));
       if (closeBtn) closeBtn.removeEventListener("click", closeAbout);
       document.removeEventListener("keydown", handleKeydown);
-      document.body.style.overflow = ""; // safety: restore scroll on unmount
-      (window as any).__lenis?.start();
     };
   }, [onOpenWorks]);
 
@@ -547,19 +517,19 @@ export default function CreativeSection({ onOpenWorks }: CreativeSectionProps) {
 
           <ul className="s2-labels" aria-label="Focus areas">
             <li className="s2-label-pos s2-pos-ai">
-              <span className="s2-label s2-label--ai">AI.</span>
+              <span className="s2-label s2-label--ai">User Research</span>
             </li>
             <li className="s2-label-pos s2-pos-sys">
-              <span className="s2-label s2-label--sys">SYSTEMS.</span>
+              <span className="s2-label s2-label--sys">Wireframing</span>
             </li>
             <li className="s2-label-pos s2-pos-web">
-              <span className="s2-label s2-label--web">WEB.</span>
+              <span className="s2-label s2-label--web">Prototyping</span>
             </li>
             <li className="s2-label-pos s2-pos-api">
-              <span className="s2-label s2-label--api">APIs.</span>
+              <span className="s2-label s2-label--api">Usability Testing</span>
             </li>
             <li className="s2-label-pos s2-pos-auto">
-              <span className="s2-label s2-label--auto">AUTOMATION.</span>
+              <span className="s2-label s2-label--auto">Usability</span>
             </li>
           </ul>
         </div>
@@ -599,9 +569,9 @@ export default function CreativeSection({ onOpenWorks }: CreativeSectionProps) {
         {/* Section 03: About Me */}
         <div ref={aboutRootRef} className="p3" id="section-03">
           <div className="p3-dim" aria-hidden="true">
-            <span>Functional &amp; Beautiful</span>
-            <span>Designs for Startups</span>
-            <span className="p3-dim-3">Ready to Scale</span>
+            <span>Design with Purpose</span>
+            <span>Built for People</span>
+            <span className="p3-dim-3">Made to Scale</span>
           </div>
 
 
@@ -669,7 +639,7 @@ export default function CreativeSection({ onOpenWorks }: CreativeSectionProps) {
                     <span className="ab-kicker">( Craft )</span>
                     <Image
                       className="ab-img ab-img--air"
-                      src="/assets/aircraft.jpg"
+                      src="/assets/craft-dashboard.jpg"
                       alt=""
                       width={400}
                       height={500}
@@ -711,7 +681,7 @@ export default function CreativeSection({ onOpenWorks }: CreativeSectionProps) {
                     <span className="ab-kicker">( Approach )</span>
                     <Image
                       className="ab-img"
-                      src="/assets/portrait.jpg"
+                      src="/assets/wireframe-sketch.jpg"
                       alt=""
                       width={400}
                       height={500}

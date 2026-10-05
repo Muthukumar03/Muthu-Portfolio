@@ -1,7 +1,8 @@
 "use client";
-
 import React from "react";
+import Image from "next/image";
 import { heroContent } from "@/data/content";
+import { ArrowUpRight } from "lucide-react";
 
 interface HeaderProps {
   onOpenWorks?: () => void;
@@ -12,20 +13,14 @@ export default function Header({ onOpenWorks }: HeaderProps) {
     <header className="site-header">
       <div className="header-pill fx fx-header">
         <a className="brand" href="#top" aria-label={`${heroContent.headline} — home`}>
-          <svg
+          <Image
+            src="/assets/mk-logo.png?v=2"
+            alt="Muthukumar (MK) Logo"
+            width={64}
+            height={23}
             className="brand-mark"
-            viewBox="0 0 44 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="3.4"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M12 4.5 4.5 12l7.5 7.5" />
-            <path d="M32 4.5 39.5 12 32 19.5" />
-            <path d="M25.5 3.5 18.5 20.5" />
-          </svg>
+            priority
+          />
           <span className="brand-dot" aria-hidden="true"></span>
         </a>
 
@@ -54,20 +49,23 @@ export default function Header({ onOpenWorks }: HeaderProps) {
         </nav>
 
         <div className="header-actions">
-          <a className="cta" href={heroContent.cta.href}>
-            <span data-slot="cta">{heroContent.cta.label}</span>
-            <svg
-              className="cta-arrow"
-              viewBox="0 0 14 14"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.7"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M3.2 10.8 10.8 3.2M5 3.2h5.8V9" />
-            </svg>
+          <a
+            className="cta"
+            href={heroContent.cta.href}
+            target={heroContent.cta.href.endsWith(".pdf") ? "_blank" : undefined}
+            rel={heroContent.cta.href.endsWith(".pdf") ? "noopener noreferrer" : undefined}
+          >
+            {/* Left arrow (arrives on hover) */}
+            <ArrowUpRight className="cta-arrow cta-arrow--left" aria-hidden="true" />
+
+            {/* Button text */}
+            <span className="cta-text" data-slot="cta">{heroContent.cta.label}</span>
+
+            {/* Expanding circle background */}
+            <span className="cta-circle" aria-hidden="true" />
+
+            {/* Right arrow (departs on hover) */}
+            <ArrowUpRight className="cta-arrow cta-arrow--right" aria-hidden="true" />
           </a>
         </div>
       </div>

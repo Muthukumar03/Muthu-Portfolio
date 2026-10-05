@@ -249,9 +249,9 @@ const SelectedWorks = forwardRef<SelectedWorksHandle, {}>((props, ref) => {
       <div ref={rootRef} className="wk" id="works" aria-hidden="true">
         <div className="wk-void" aria-hidden="true">
           <div className="wk-dim">
-            <span>Functional &amp; Beautiful</span>
-            <span>Designs for Startups</span>
-            <span className="wk-dim-3">Ready to Scale</span>
+            <span>Design with Purpose</span>
+            <span>Built for People</span>
+            <span className="wk-dim-3">Made to Scale</span>
           </div>
           <p className="wk-corner wk-corner--l">
             Transforming <b>Visions</b> to Reality
@@ -268,20 +268,13 @@ const SelectedWorks = forwardRef<SelectedWorksHandle, {}>((props, ref) => {
             <div className="wk-stage">
               <div className="wk-head" data-enter style={{ ["--d" as string]: ".08s" }}>
                 <span className="wk-brand">
-                  <svg
+                  <Image
+                    src="/assets/mk-logo-red.png?v=2"
+                    alt="Muthukumar (MK) Logo"
+                    width={44}
+                    height={16}
                     className="wk-brand-mark"
-                    viewBox="0 0 44 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="3.4"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
-                  >
-                    <path d="M12 4.5 4.5 12l7.5 7.5" />
-                    <path d="M32 4.5 39.5 12 32 19.5" />
-                    <path d="M25.5 3.5 18.5 20.5" />
-                  </svg>
+                  />
                   <b>MyCreativeHunch</b>&nbsp;Studio
                 </span>
                 <button

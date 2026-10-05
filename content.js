@@ -17,7 +17,7 @@ const heroContent = {
     { label: "Contact", href: "#contact" },
   ],
 
-  cta: { label: "Let’s Talk", href: "#contact" },
+  cta: { label: "Resume", href: "resume.pdf" },
 
   headline: "Muthukumar G",
   role: ["UI/UX", "Designer"],
