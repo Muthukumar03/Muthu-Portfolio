@@ -48,6 +48,7 @@ export interface PortfolioContent {
   nav: NavItem[];
   cta: { label: string; href: string };
   headline: string;
+  experience?: string;
   role: [string, string];
   meta: string[];
   notification: {

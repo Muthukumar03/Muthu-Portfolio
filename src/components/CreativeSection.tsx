@@ -5,6 +5,47 @@ import Image from "next/image";
 import { heroContent } from "@/data/content";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import FlexCarousel, { FlexCarouselItem, FlexCarouselRef } from "./FlexCarousel";
+
+const carouselItems: FlexCarouselItem[] = [
+  {
+    src: "/assets/card-who.jpg",
+    alt: "Muthukumar G — UI/UX Designer & Product Thinker",
+    title: "Who I Am",
+    subtitle: "Identity • 2+ Years Experience"
+  },
+  {
+    src: "/assets/card-what.jpg",
+    alt: "UI/UX & Product Design Systems",
+    title: "What I Do",
+    subtitle: "Craft • Systems & Architecture"
+  },
+  {
+    src: "/assets/card-think.jpg",
+    alt: "Design Thinking, Wireframing & Research",
+    title: "How I Think",
+    subtitle: "Approach • Research & Prototype"
+  },
+  {
+    src: "/assets/card-classlogic.jpg",
+    alt: "ClassLogic Education Platform",
+    title: "ClassLogic",
+    subtitle: "EdTech Platform"
+  },
+  {
+    src: "/assets/card-tourtripx.jpg",
+    alt: "TourTripX Travel App",
+    title: "TourTripX",
+    subtitle: "Travel Experience"
+  },
+  {
+    src: "/assets/card-couchops.jpg",
+    alt: "CouchOps Developer Tooling",
+    title: "CouchOps",
+    subtitle: "Cloud Infrastructure"
+  }
+];
+
 
 interface CreativeSectionProps {
   onOpenWorks?: () => void;
@@ -17,6 +58,7 @@ export default function CreativeSection({ onOpenWorks }: CreativeSectionProps) {
   const aboutRootRef = useRef<HTMLDivElement>(null);
   const detailRef = useRef<HTMLDivElement>(null);
   const closeBtnRef = useRef<HTMLButtonElement>(null);
+  const carouselRef = useRef<FlexCarouselRef>(null);
 
   useEffect(() => {
     const s2pin = pinRef.current;
@@ -65,8 +107,7 @@ export default function CreativeSection({ onOpenWorks }: CreativeSectionProps) {
     const p3Dim = stage.querySelector<HTMLElement>(".p3-dim");
     const p3Corners = [...stage.querySelectorAll<HTMLElement>(".p3-corner")];
     const atmoCredits = [...stage.querySelectorAll<HTMLElement>(".s3-credit")];
-    const abTitle = stage.querySelector<HTMLElement>(".ab-title");
-    const abBoxes = [...stage.querySelectorAll<HTMLElement>(".ab-box")];
+    const abCarousel = stage.querySelector<HTMLElement>(".ab-carousel-wrap");
     const abFoot = stage.querySelector<HTMLElement>(".ab-foot");
     const hasTr = !!(trWindow && trFragsBox && trAtmo);
 
@@ -176,19 +217,35 @@ export default function CreativeSection({ onOpenWorks }: CreativeSectionProps) {
         clusterInner.append(clone);
         trCluster.append(clusterInner);
       }
+      if (trWindow) {
+        trWindow.style.opacity = "0";
+        trWindow.style.visibility = "hidden";
+        trWindow.style.display = "none";
+      }
+      if (trCluster) {
+        trCluster.style.opacity = "0";
+        trCluster.style.visibility = "hidden";
+        trCluster.style.display = "none";
+      }
+      if (trAtmo) {
+        trAtmo.style.opacity = "0";
+        trAtmo.style.visibility = "hidden";
+      }
       layoutFragments();
     };
 
     let range = 1,
       s2Range = 1,
-      trRange = 1;
+      trRange = 1,
+      s3Range = 1;
     let centers: { x: number; y: number }[] = [];
     let centroid = { x: 0, y: 0 };
 
     const measure = () => {
       range = Math.max(1, s2pin.offsetHeight - window.innerHeight);
-      s2Range = window.innerHeight * (isMobileLayout() ? 1.8 : 2.4);
-      trRange = window.innerHeight * (isMobileLayout() ? 2.8 : 3.4);
+      s2Range = window.innerHeight * (isMobileLayout() ? 1.6 : 2.2);
+      trRange = window.innerHeight * (isMobileLayout() ? 2.0 : 2.6);
+      s3Range = Math.max(window.innerHeight * 2, range - s2Range - trRange);
       centers = labelWraps.map((w) => {
         const r = w.getBoundingClientRect();
         return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
@@ -235,6 +292,7 @@ export default function CreativeSection({ onOpenWorks }: CreativeSectionProps) {
     let trActive = false;
     const siteHeader = document.querySelector<HTMLElement>(".site-header");
 
+    // Phase 2: Puzzle fragmentation transition — completes 100% before Section 03 starts
     const applyTr = (pt: number) => {
       if (!hasTr) return;
       const active = pt > 0.0005;
@@ -246,10 +304,47 @@ export default function CreativeSection({ onOpenWorks }: CreativeSectionProps) {
             r.style.opacity = "";
             r.style.transform = "";
           });
-          stage.classList.remove("is-s3-locked");
           if (siteHeader) {
             siteHeader.style.opacity = "";
             siteHeader.style.pointerEvents = "";
+          }
+          if (comp) {
+            comp.style.opacity = "1";
+            comp.style.visibility = "visible";
+            comp.style.display = "";
+            comp.style.pointerEvents = "";
+          }
+          if (trWindow) {
+            trWindow.style.opacity = "0";
+            trWindow.style.visibility = "hidden";
+            trWindow.style.display = "none";
+          }
+          if (trCluster) {
+            trCluster.style.opacity = "0";
+            trCluster.style.visibility = "hidden";
+            trCluster.style.display = "none";
+          }
+          if (trAtmo) {
+            trAtmo.style.opacity = "0";
+            trAtmo.style.visibility = "hidden";
+          }
+        } else {
+          if (comp) {
+            comp.style.opacity = "0";
+            comp.style.visibility = "hidden";
+            comp.style.display = "none";
+            comp.style.pointerEvents = "none";
+          }
+          if (trWindow) {
+            trWindow.style.display = "block";
+            trWindow.style.visibility = "visible";
+          }
+          if (trCluster) {
+            trCluster.style.display = "block";
+            trCluster.style.visibility = "visible";
+          }
+          if (trAtmo) {
+            trAtmo.style.visibility = "visible";
           }
         }
       }
@@ -268,59 +363,23 @@ export default function CreativeSection({ onOpenWorks }: CreativeSectionProps) {
       });
 
       if (trAtmo) trAtmo.style.opacity = easeOut(sub(pt, 0.02, 0.16)).toFixed(3);
-      if (p3Dim) p3Dim.style.opacity = (0.55 * easeOut(sub(pt, 0.06, 0.2))).toFixed(3);
-
-      const creditsOut = easeOut(sub(pt, 0.8, 0.9));
-      atmoCredits.forEach((c) => {
-        c.style.opacity = (1 - creditsOut).toFixed(3);
-      });
-      const cornersIn = easeOut(sub(pt, 0.86, 0.97));
-      p3Corners.forEach((c) => {
-        c.style.opacity = cornersIn.toFixed(3);
-      });
-
-      const locked = pt > 0.985;
-      if (!locked) {
-        if (abTitle) {
-          const te = easeInOut(sub(pt, 0.55, 0.8));
-          abTitle.style.transform = `translate3d(0, ${((1 - te) * 108).toFixed(2)}%, 0)`;
-        }
-        abBoxes.forEach((box, i) => {
-          const a = 0.6 + i * 0.06;
-          const e = easeInOut(sub(pt, a, a + 0.25));
-          box.style.transform = `translate3d(0, ${((1 - e) * 0.14 * stageH).toFixed(1)}px, 0)`;
-          box.style.opacity = easeOut(sub(pt, a, a + 0.16)).toFixed(3);
-        });
-        if (abFoot) abFoot.style.opacity = easeOut(sub(pt, 0.85, 0.97)).toFixed(3);
-      }
-
-      if (locked !== stage.classList.contains("is-s3-locked")) {
-        stage.classList.toggle("is-s3-locked", locked);
-        if (locked) {
-          if (abTitle) abTitle.style.transform = "";
-          abBoxes.forEach((b) => {
-            b.style.transform = "";
-            b.style.opacity = "";
-          });
-          if (abFoot) abFoot.style.opacity = "";
-        }
-      }
 
       const framed = easeInOut(sub(pt, 0.02, 0.17));
-      const windowFade = easeOut(sub(pt, 0.92, 1));
+      const windowFade = easeOut(sub(pt, 0.82, 0.98));
       const wScale = 1 - (isMobileLayout() ? 0.1 : 0.2) * framed;
       if (trWindow) {
         trWindow.style.transform = `scale(${wScale.toFixed(4)})`;
         trWindow.style.setProperty("--s3r", (framed * 20).toFixed(1) + "px");
         trWindow.style.opacity = (1 - windowFade).toFixed(3);
+        trWindow.style.visibility = pt >= 0.98 ? "hidden" : "visible";
       }
       if (trFrame) trFrame.style.opacity = (framed * (1 - windowFade)).toFixed(3);
       if (trGhost)
-        trGhost.style.opacity = (1 - easeInOut(sub(pt, 0.5, 0.85))).toFixed(3);
+        trGhost.style.opacity = (1 - easeInOut(sub(pt, 0.4, 0.8))).toFixed(3);
 
       const seamGlobal = easeOut(sub(pt, 0.05, 0.18));
       tiles.forEach(({ el, seam, cfg }) => {
-        const e = easeInOut(sub(pt, cfg.s, cfg.s + TR_SPAN));
+        const e = easeInOut(sub(pt, cfg.s * 0.72, cfg.s * 0.72 + TR_SPAN));
         const dx = cfg.d[0] * stageW * e;
         const dy = cfg.d[1] * stageH * e;
         const sc = 1 + (cfg.d[0] < 0 ? -0.035 : 0.03) * e;
@@ -329,7 +388,7 @@ export default function CreativeSection({ onOpenWorks }: CreativeSectionProps) {
           `rotate(${(cfg.rot * e).toFixed(2)}deg) scale(${sc.toFixed(3)})`;
         el.style.opacity = (1 - easeOut(sub(e, 0.62, 1))).toFixed(3);
         if (cfg.inv) {
-          const k = sub(pt, cfg.s * 0.7, cfg.s * 0.95);
+          const k = sub(pt, cfg.s * 0.6, cfg.s * 0.9);
           el.style.filter =
             k > 0.002 ? `grayscale(${k.toFixed(2)}) invert(${k.toFixed(2)})` : "";
         }
@@ -337,21 +396,117 @@ export default function CreativeSection({ onOpenWorks }: CreativeSectionProps) {
       });
 
       if (trCluster) {
-        const drift = easeInOut(sub(pt, 0.3, 0.85));
-        const cfade = easeOut(sub(pt, 0.8, 0.92));
+        const drift = easeInOut(sub(pt, 0.25, 0.75));
+        const cfade = easeOut(sub(pt, 0.76, 0.94));
         trCluster.style.transform =
           `translate3d(0, ${(-0.16 * stageH * drift).toFixed(1)}px, 0) ` +
           `scale(${(1 - 0.06 * drift).toFixed(3)})`;
         trCluster.style.opacity = (1 - cfade).toFixed(3);
+        trCluster.style.visibility = pt >= 0.95 ? "hidden" : "visible";
+      }
+    };
+
+    // Phase 3: Section 03 & FlexCarousel — starts ONLY after Phase 2 is fully finished
+    let s3Active = false;
+    const applyS3 = (p3: number) => {
+      const active = p3 > 0.0005;
+      if (active !== s3Active) {
+        s3Active = active;
+        stage.classList.toggle("is-s3-active", active);
+        if (active) {
+          if (comp) {
+            comp.style.opacity = "0";
+            comp.style.visibility = "hidden";
+            comp.style.display = "none";
+            comp.style.pointerEvents = "none";
+          }
+          if (trWindow) {
+            trWindow.style.opacity = "0";
+            trWindow.style.visibility = "hidden";
+            trWindow.style.display = "none";
+          }
+          if (trCluster) {
+            trCluster.style.opacity = "0";
+            trCluster.style.visibility = "hidden";
+            trCluster.style.display = "none";
+          }
+        } else {
+          if (p3Dim) p3Dim.style.opacity = "0";
+          if (abCarousel) {
+            abCarousel.style.opacity = "0";
+            abCarousel.style.transform = `translate3d(0, ${(0.14 * stageH).toFixed(1)}px, 0)`;
+          }
+          atmoCredits.forEach((c) => (c.style.opacity = "0"));
+          p3Corners.forEach((c) => (c.style.opacity = "0"));
+          if (abFoot) abFoot.style.opacity = "0";
+          stage.classList.remove("is-s3-locked");
+        }
+      }
+      if (!active) return;
+
+      // 1. Watermark typography fades in
+      if (p3 <= 0.92 && p3Dim) {
+        p3Dim.style.opacity = (0.55 * easeOut(sub(p3, 0.02, 0.14))).toFixed(3);
+      }
+
+      // 2. Credits and corner markers fade in
+      const creditsIn = easeOut(sub(p3, 0.04, 0.16));
+      atmoCredits.forEach((c) => {
+        c.style.opacity = (creditsIn * 0.7).toFixed(3);
+      });
+      const cornersIn = easeOut(sub(p3, 0.06, 0.18));
+      p3Corners.forEach((c) => {
+        c.style.opacity = cornersIn.toFixed(3);
+      });
+
+      // 3. FlexCarousel smooth entrance, locked state, and seamless exit to next section
+      const locked = p3 >= 0.12 && p3 <= 0.92;
+      if (p3 < 0.12) {
+        if (abCarousel) {
+          const e = easeInOut(sub(p3, 0.02, 0.12));
+          abCarousel.style.transform = `translate3d(0, ${((1 - e) * 0.14 * stageH).toFixed(1)}px, 0)`;
+          abCarousel.style.opacity = easeOut(sub(p3, 0.02, 0.10)).toFixed(3);
+        }
+        if (abFoot) abFoot.style.opacity = easeOut(sub(p3, 0.06, 0.12)).toFixed(3);
+      } else if (p3 > 0.92) {
+        const exitOut = easeOut(sub(p3, 0.92, 1.0));
+        if (abCarousel) {
+          abCarousel.style.transform = `translate3d(0, ${(-exitOut * 0.08 * stageH).toFixed(1)}px, 0)`;
+          abCarousel.style.opacity = (1 - exitOut).toFixed(3);
+        }
+        if (p3Dim) {
+          p3Dim.style.opacity = (0.55 * (1 - exitOut)).toFixed(3);
+        }
+        if (abFoot) abFoot.style.opacity = (1 - exitOut).toFixed(3);
+      } else {
+        if (abCarousel) {
+          abCarousel.style.transform = "";
+          abCarousel.style.opacity = "";
+        }
+        if (abFoot) abFoot.style.opacity = "";
+      }
+
+      if (locked !== stage.classList.contains("is-s3-locked")) {
+        stage.classList.toggle("is-s3-locked", locked);
+      }
+
+      // 4. Drive carousel cards smoothly: starting at 1st card up to last card!
+      if (p3 <= 0.10) {
+        carouselRef.current?.setScrollProgress(0);
+      } else {
+        const scrollP = clamp01((p3 - 0.10) / 0.75);
+        carouselRef.current?.setScrollProgress(scrollP);
       }
     };
 
     let lastP2 = -1,
-      lastPt = -1;
+      lastPt = -1,
+      lastP3 = -1;
     const apply = (p: number) => {
       const scrolled = p * range;
       const p2 = clamp01(scrolled / s2Range);
       const pt = clamp01((scrolled - s2Range) / trRange);
+      const p3 = clamp01((scrolled - s2Range - trRange) / s3Range);
       if (p2 !== lastP2) {
         lastP2 = p2;
         applyS2(p2);
@@ -359,6 +514,10 @@ export default function CreativeSection({ onOpenWorks }: CreativeSectionProps) {
       if (pt !== lastPt) {
         lastPt = pt;
         applyTr(pt);
+      }
+      if (p3 !== lastP3) {
+        lastP3 = p3;
+        applyS3(p3);
       }
     };
 
@@ -577,139 +736,30 @@ export default function CreativeSection({ onOpenWorks }: CreativeSectionProps) {
 
 
           <div className="ab-comp">
-            <span className="ab-title-mask">
-              <h2 className="ab-title">
-                <span className="ab-title-main">About</span>
-                <span className="ab-title-script">Me</span>
-              </h2>
-            </span>
-
-            <div className="ab-boxes">
-              <div className="ab-box-pos">
-                <button
-                  className="ab-box ab-box--who"
-                  type="button"
-                  data-ab="who"
-                  aria-expanded="false"
-                >
-                  <span className="ab-box-in">
-                    <span className="ab-num">01</span>
-                    <span className="ab-kicker">( Identity )</span>
-                    <Image
-                      className="ab-img"
-                      src="/assets/muthu-bg.png"
-                      alt=""
-                      width={400}
-                      height={500}
-                      loading="lazy"
-                    />
-                    <span className="ab-box-title" data-slot="ab-who-title">
-                      Who<br />I Am
-                    </span>
-                    <span className="ab-line"></span>
-                    <span className="ab-sub" data-slot="ab-who-sub">
-                      {heroContent.about.boxes.who.sub}
-                    </span>
-                    <span className="ab-arrow">
-                      <svg
-                        viewBox="0 0 18 12"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.6"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        aria-hidden="true"
-                      >
-                        <path d="M1 6h15M11 1l5 5-5 5" />
-                      </svg>
-                    </span>
-                  </span>
-                </button>
-              </div>
-
-              <div className="ab-box-pos">
-                <button
-                  className="ab-box ab-box--what"
-                  type="button"
-                  data-ab="what"
-                  aria-expanded="false"
-                >
-                  <span className="ab-box-in">
-                    <span className="ab-num">02</span>
-                    <span className="ab-kicker">( Craft )</span>
-                    <Image
-                      className="ab-img ab-img--air"
-                      src="/assets/craft-dashboard.jpg"
-                      alt=""
-                      width={400}
-                      height={500}
-                      loading="lazy"
-                    />
-                    <span className="ab-box-title" data-slot="ab-what-title">
-                      What<br />I Do
-                    </span>
-                    <span className="ab-line"></span>
-                    <span className="ab-sub" data-slot="ab-what-sub">
-                      {heroContent.about.boxes.what.sub}
-                    </span>
-                    <span className="ab-arrow">
-                      <svg
-                        viewBox="0 0 18 12"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.6"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        aria-hidden="true"
-                      >
-                        <path d="M1 6h15M11 1l5 5-5 5" />
-                      </svg>
-                    </span>
-                  </span>
-                </button>
-              </div>
-
-              <div className="ab-box-pos">
-                <button
-                  className="ab-box ab-box--think"
-                  type="button"
-                  data-ab="think"
-                  aria-expanded="false"
-                >
-                  <span className="ab-box-in">
-                    <span className="ab-num">03</span>
-                    <span className="ab-kicker">( Approach )</span>
-                    <Image
-                      className="ab-img"
-                      src="/assets/wireframe-sketch.jpg"
-                      alt=""
-                      width={400}
-                      height={500}
-                      loading="lazy"
-                    />
-                    <span className="ab-box-title" data-slot="ab-think-title">
-                      How<br />I Think
-                    </span>
-                    <span className="ab-line"></span>
-                    <span className="ab-sub" data-slot="ab-think-sub">
-                      {heroContent.about.boxes.think.sub}
-                    </span>
-                    <span className="ab-arrow">
-                      <svg
-                        viewBox="0 0 18 12"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.6"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        aria-hidden="true"
-                      >
-                        <path d="M1 6h15M11 1l5 5-5 5" />
-                      </svg>
-                    </span>
-                  </span>
-                </button>
-              </div>
+            <div
+              className="ab-carousel-wrap"
+              style={{ width: "100%", height: "520px", position: "relative", pointerEvents: "auto", marginTop: "auto" }}
+            >
+              <FlexCarousel
+                ref={carouselRef}
+                items={carouselItems}
+                preset="liquid"
+                intro="rise"
+                initialIndex={0}
+                captureWheel={false}
+                cardHeight={0.48}
+                fit="landscape"
+                aspectRatio={1200 / 896}
+                gap={16}
+                squeeze={0.2}
+                focusOnClick
+                captions
+                onSelect={(_idx, item) => {
+                  if (item?.title === "What I Do" && onOpenWorks) {
+                    onOpenWorks();
+                  }
+                }}
+              />
             </div>
 
             <div className="ab-foot">

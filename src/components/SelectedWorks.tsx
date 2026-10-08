@@ -268,13 +268,6 @@ const SelectedWorks = forwardRef<SelectedWorksHandle, {}>((props, ref) => {
             <div className="wk-stage">
               <div className="wk-head" data-enter style={{ ["--d" as string]: ".08s" }}>
                 <span className="wk-brand">
-                  <Image
-                    src="/assets/mk-logo-red.png?v=2"
-                    alt="Muthukumar (MK) Logo"
-                    width={44}
-                    height={16}
-                    className="wk-brand-mark"
-                  />
                   <b>MyCreativeHunch</b>&nbsp;Studio
                 </span>
                 <button
