@@ -62,16 +62,36 @@
 /* ---------- 02 · Base ---------- */
 *, *::before, *::after { box-sizing: border-box; }
 
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
 
 body {
   margin: 0;
   overflow-x: hidden;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
   background: var(--black);
   color: var(--text-hi);
   font-family: "Inter", -apple-system, "Segoe UI", system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+}
+
+/* Hide scrollbar for Chrome, Safari, Opera, Edge */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+*::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 [hidden] { display: none !important; }
@@ -477,6 +497,21 @@ a, button { touch-action: manipulation; -webkit-tap-highlight-color: transparent
   text-shadow: 0 2px 26px rgba(0, 0, 0, 0.45);
 }
 
+.headline-block {
+  display: flex;
+  flex-direction: column;
+}
+
+.headline-sub {
+  margin: 8px 0 0;
+  font-family: "Inter", sans-serif;
+  font-size: clamp(13px, 0.45vw + 11px, 16px);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: var(--text-mid);
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.45);
+}
+
 .role-block { text-align: right; }
 
 .role {
@@ -634,8 +669,9 @@ a, button { touch-action: manipulation; -webkit-tap-highlight-color: transparent
 .is-ready .fx-flash          { animation: eye-window var(--d-flash) var(--ease-soft) var(--flash-delay) both; }
 .is-ready .fx-flash::before  { animation: eye-beam var(--d-flash) var(--ease-inout) var(--flash-delay) both; }
 
-.is-ready .fx-headline { animation: rise-in var(--d-text) var(--ease-cine) var(--t-headline) both; }
-.is-ready .fx-role-1   { animation: rise-in var(--d-text) var(--ease-cine) var(--t-role1) both; }
+.is-ready .fx-headline     { animation: rise-in var(--d-text) var(--ease-cine) var(--t-headline) both; }
+.is-ready .fx-headline-sub { animation: rise-in var(--d-text) var(--ease-cine) calc(var(--t-headline) + 0.12s) both; }
+.is-ready .fx-role-1       { animation: rise-in var(--d-text) var(--ease-cine) var(--t-role1) both; }
 .is-ready .fx-role-2   { animation: rise-in var(--d-text) var(--ease-cine) var(--t-role2) both; }
 .is-ready .fx-meta     { animation: rise-in var(--d-text) var(--ease-cine) var(--t-meta) both; }
 

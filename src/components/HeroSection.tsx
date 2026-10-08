@@ -167,9 +167,14 @@ export default function HeroSection({ onOpenWorks }: HeroSectionProps) {
 
       {/* L07 · Hero typography */}
       <div className="hero-copy">
-        <h1 className="headline fx fx-headline" data-slot="headline">
-          {heroContent.headline}
-        </h1>
+        <div className="headline-block">
+          <h1 className="headline fx fx-headline" data-slot="headline">
+            {heroContent.headline}
+          </h1>
+          <p className="headline-sub fx fx-headline-sub" data-slot="headline-sub">
+            {heroContent.experience}
+          </p>
+        </div>
         <div className="role-block">
           <p className="role">
             <span className="role-line fx fx-role-1" data-slot="role-1">

@@ -137,6 +137,7 @@ export const heroContent: PortfolioContent = {
   cta: { label: "Resume", href: "/resume.pdf" },
 
   headline: "Muthukumar G",
+  experience: "2+ Years of Experience",
   role: ["UI/UX", "Designer"],
   meta: ["UI/UX", "Product Design", "Design Systems"],
 
