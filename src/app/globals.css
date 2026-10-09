@@ -1361,7 +1361,7 @@ button:focus-visible {
   position: absolute;
   left: 0;
   right: 0;
-  top: clamp(48px, 7.5vh, 88px);
+  top: clamp(24px, 4vh, 52px);
   text-align: center;
   font-family: "Anton", "Archivo", sans-serif;
   font-size: clamp(30px, 4.6vw, 68px);
@@ -1405,7 +1405,7 @@ button:focus-visible {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: 0 clamp(24px, 4.5vw, 84px) clamp(16px, 3.2svh, 36px);
+  padding: 0 0 clamp(6px, 1.2svh, 16px) 0;
 }
 
 .ab-title-mask {
@@ -1898,7 +1898,7 @@ button:focus-visible {
   .s3-credit, .p3-corner { font-size: 9px; letter-spacing: 0.1em; }
   .s3-credit--r, .p3-corner--r { display: none; }
 
-  .ab-comp { padding: 0 16px 3svh; }
+  .ab-comp { padding: 0 0 3svh 0; }
 
   .ab-title { font-size: clamp(40px, 10svh, 84px); }
   .ab-title-mask { margin-bottom: -1.2svh; }

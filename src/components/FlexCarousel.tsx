@@ -27,6 +27,7 @@ export interface FlexCarouselProps {
   intro?: 'rise' | 'bloom' | 'spin' | 'deal' | 'none';
   initialIndex?: number;
   cardHeight?: number;
+  yOffset?: number;
   gap?: number;
   radius?: number;
   fit?: 'natural' | 'portrait' | 'square' | 'landscape' | '1200/896' | number;
@@ -313,8 +314,9 @@ const FlexCarousel = React.forwardRef<FlexCarouselRef, FlexCarouselProps>(({
   intro = 'rise',
   initialIndex = 0,
   cardHeight = 0.5,
+  yOffset = 0,
   gap = 12,
-  radius = 0,
+  radius = 16,
   fit = 'landscape',
   aspectRatio = 1200 / 896,
   lensWidth,
@@ -359,6 +361,7 @@ const FlexCarousel = React.forwardRef<FlexCarouselRef, FlexCarouselProps>(({
     settingsRef.current = {
       intro,
       cardHeight,
+      yOffset,
       gap,
       radius,
       fit,
@@ -600,9 +603,11 @@ const FlexCarousel = React.forwardRef<FlexCarouselRef, FlexCarouselProps>(({
       const cardH = Math.max(24, s.cardHeight * height);
       const fixed = typeof s.fit === 'number'
         ? s.fit
+        : typeof s.aspectRatio === 'number'
+        ? s.aspectRatio
         : s.fit === 'natural'
         ? null
-        : (FIT_ASPECT[s.fit] || s.aspectRatio || (1200 / 896));
+        : (FIT_ASPECT[s.fit] || (1200 / 896));
       const targetAspect = fixed || (1200 / 896);
       const widths = slots.map((slot: any) => (fixed ? fixed : (s.fit === 'natural' ? slot.aspect : targetAspect)) * cardH);
       const centers: number[] = [];
@@ -911,7 +916,7 @@ const FlexCarousel = React.forwardRef<FlexCarouselRef, FlexCarouselProps>(({
       const effects = introEffects();
 
       const homeX = width / 2;
-      const homeY = height / 2;
+      const homeY = height / 2 + (s.yOffset || 0);
       const follow = s.followCursor && pointer.over && !pointer.dragging && !pointer.touch && focus.target === 0;
       const aimX = follow ? pointer.x : homeX;
       const aimY = follow ? pointer.y : homeY;
@@ -960,7 +965,7 @@ const FlexCarousel = React.forwardRef<FlexCarouselRef, FlexCarouselProps>(({
           const baseRel = wrap(m.centers[i] - pos, m.loop);
           for (let k = -3; k <= 3; k++) {
             const rel = baseRel + k * m.loop;
-            if (Math.abs(rel) - w / 2 > width + 40) continue;
+            if (Math.abs(rel) - w / 2 > width + 140) continue;
             const fx = effects.card ? effects.card(rel) : null;
             let x = homeX + rel + (fx ? fx.x : 0);
             let scale = shrink * (fx ? fx.scale : 1);
@@ -976,7 +981,7 @@ const FlexCarousel = React.forwardRef<FlexCarouselRef, FlexCarouselProps>(({
               }
             }
             const cw = w * scale;
-            if (alpha <= 0.001 || x + cw / 2 < -40 || x - cw / 2 > width + 40) continue;
+            if (alpha <= 0.001 || x + cw / 2 < -140 || x - cw / 2 > width + 140) continue;
             draws.push({ i, rel, x, y: homeY + (fx ? fx.y : 0), cw, ch: cardH * scale, alpha });
           }
         }
@@ -1339,7 +1344,11 @@ const FlexCarousel = React.forwardRef<FlexCarouselRef, FlexCarouselProps>(({
     <div
       ref={containerRef}
       className={`flex-carousel ${className}`.trim()}
-      style={{ ...style, ['--flex-carousel-half' as any]: `${Math.min(Math.max(cardHeight, 0.05), 1) * 50}%` }}
+      style={{
+        ...style,
+        ['--flex-carousel-half' as any]: `${Math.min(Math.max(cardHeight, 0.05), 1) * 50}%`,
+        ['--flex-carousel-y' as any]: `${yOffset}px`
+      }}
       role="region"
       aria-roledescription="carousel"
       aria-label="Image carousel"

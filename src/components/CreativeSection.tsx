@@ -735,10 +735,16 @@ export default function CreativeSection({ onOpenWorks }: CreativeSectionProps) {
 
 
 
-          <div className="ab-comp">
+          <div className="ab-comp" style={{ paddingLeft: 0, paddingRight: 0 }}>
             <div
               className="ab-carousel-wrap"
-              style={{ width: "100%", height: "520px", position: "relative", pointerEvents: "auto", marginTop: "auto" }}
+              style={{
+                width: "100%",
+                height: "clamp(600px, 72svh, 690px)",
+                position: "relative",
+                pointerEvents: "auto",
+                marginTop: "auto"
+              }}
             >
               <FlexCarousel
                 ref={carouselRef}
@@ -747,11 +753,16 @@ export default function CreativeSection({ onOpenWorks }: CreativeSectionProps) {
                 intro="rise"
                 initialIndex={0}
                 captureWheel={false}
-                cardHeight={0.48}
-                fit="landscape"
-                aspectRatio={1200 / 896}
-                gap={16}
-                squeeze={0.2}
+                cardHeight={0.428}
+                yOffset={75}
+                fit={1.593}
+                aspectRatio={1.593}
+                gap={20}
+                radius={16}
+                bend={0.18}
+                tilt={34}
+                reach={0.32}
+                squeeze={0.15}
                 focusOnClick
                 captions
                 onSelect={(_idx, item) => {
